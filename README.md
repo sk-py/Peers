@@ -13,13 +13,13 @@ Responsive Design: Tailored for a seamless experience across various devices.
 Dark Mode: Switch between light and dark modes for personalized visual comfort.
 
 ## Tech Stack
-Frontend:
 
+### Frontend:
 Create Vite App
 React
 Tailwind CSS
-Backend:
 
+### Backend:
 Node.js
 Express.js
 Socket.io
