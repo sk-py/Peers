@@ -33,7 +33,7 @@ MongoDB is installed and running.
 Clone the repository:
 ```
 git clone https://github.com/sk-py/Peers.git
-cd chat-app
+cd Peers
 ```
 
 ## Frontend Setup
