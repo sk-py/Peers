@@ -1,56 +1,53 @@
-const Users = require("../Models/Users");
-const mongoose = require("mongoose");
-const bcryptjs = require("bcryptjs");
+const users = require("../Models/Users");
 
-async function handleUserSignUp(req, res, next) {
+const searchUsers = async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
-
-    if (!fullName || !email || !password) {
-      res.status(400).send("All The Fields Are Required \n Please Fill Them.");
-    } else {
-      const AlreadyExists = await Users.findOne({ email });
-      if (AlreadyExists) {
-        res.status(400).send("User Already Exists");
-      } else {
-        const newUser = new Users({
-          fullName,
-          email,
-        });
-        bcryptjs.hash(password, 10, (err, hashedPassword) => {
-          newUser.set("password", hashedPassword);
-          newUser.save();
-          next();
-        });
-      }
-      return res.status(201).send("User Created");
-    }
-  } catch (error) {}
-}
-
-async function handleUserLogin(req, res, next) {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).send("All The Fields Are Required \n Please Fill Them.");
-    } else {
-      const validated = await bcryptjs.compare(password, Users.password);
-      if (!validated) {
-        res
-          .status(400)
-          .send("Wrong Email Or Password \n Please Enter Correct One's");
-      } else {
-        res.status(200).json({ status: "OK" });
-        //   res.redirect("/Chat");
-        next();
-      }
-    }
+    const searchQuery = req.params.name;
+    const regex = new RegExp(searchQuery, "i");
+    // console.log(regex);
+    const UsersList = await users.find({ fullName: { $regex: regex } });
+    const Users = await UsersList.map((user) => {
+      return {
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          //Profile Pic And Other Details Will Come Here While Searching Except Password
+        },
+      };
+    });
+    res.json(Users);
   } catch (error) {
-    console.log(error);
+    console.log("Error from search script /users/:name :", error.message);
   }
-}
-
-module.exports = {
-  handleUserSignUp,
-  handleUserLogin,
 };
+
+const uploadProfile = async (req, res) => {
+  const userId = req.params.userId;
+  const fileName = req.file.filename;
+
+  console.log("fileName", fileName, "UserID :" + userId);
+  try {
+    const uploaded = await users.findOneAndUpdate(
+      { _id: userId },
+      { profileUrl: fileName },
+      { new: true }
+    );
+    console.log("upload", fileName);
+    res.status(200).json(fileName);
+  } catch (error) {
+    console.log("Error from /api/upload : ", error.message);
+  }
+};
+
+const getProfileImage = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const image = await users.findOne({ _id: userId });
+    res.status(200).json(image);
+  } catch (error) {
+    console.log("Error from /api/upload : ", error.message);
+  }
+};
+
+module.exports = { searchUsers, uploadProfile, getProfileImage };
