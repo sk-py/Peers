@@ -17,6 +17,9 @@ const userSchema = mongoose.Schema(
     profileUrl: {
       type: String,
     },
+    status: {
+      type: String,
+    },
     token: {
       type: String,
       default: null,

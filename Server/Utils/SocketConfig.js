@@ -1,3 +1,4 @@
+const users = require("../Models/Users");
 const conversations = require("../Models/conversations");
 
 const io = require("socket.io")(8080, {
@@ -11,8 +12,12 @@ const SocketConfigs = async () => {
   try {
     io.on("connection", (socket) => {
       console.log(`User Connected${socket.id}`);
-      socket.on("addUser", (userId) => {
-        const isExist = usersArray.find((user) => user.userId === userId);
+      socket.on("addUser", async (userId) => {
+        const isExist = await usersArray.find((user) => user.userId === userId);
+        const updatedStatus = await users.findOneAndUpdate(
+          { _id: userId },
+          { status: "1" }
+        );
         if (!isExist) {
           const user = { userId, socketId: socket.id };
           usersArray.push(user);
@@ -63,7 +68,19 @@ const SocketConfigs = async () => {
         }
       );
 
-      socket.on("disconnect", () => {
+      socket.on("disconnect", async () => {
+        const NewUsersArray = usersArray.find(
+          (user) => user.socketId == socket.id
+        );
+        console.log("NewUsersArray", NewUsersArray);
+        try {
+          const updatedStatus = await users.findOneAndUpdate(
+            { _id: NewUsersArray.userId },
+            { status: "0" }
+          );
+        } catch (error) {
+          console.log("Error in socket-disconnect", error.message);
+        }
         usersArray = usersArray.filter((user) => user.socketId !== socket.id);
         io.emit("availableUsers", usersArray);
         console.log("userDisconnected", socket.id);

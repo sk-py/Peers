@@ -1,4 +1,5 @@
 const users = require("../Models/Users");
+const uploadOnCloudinary = require("../Utils/Cloudinary");
 
 const searchUsers = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ const searchUsers = async (req, res) => {
           id: user._id,
           fullName: user.fullName,
           email: user.email,
+          profileUrl: user.profileUrl,
           //Profile Pic And Other Details Will Come Here While Searching Except Password
         },
       };
@@ -25,18 +27,26 @@ const searchUsers = async (req, res) => {
 const uploadProfile = async (req, res) => {
   const userId = req.params.userId;
   const fileName = req.file.filename;
-
+  const localFilePath = `./uploads/${fileName}`;
+  console.log("local file path = ", localFilePath);
   console.log("fileName", fileName, "UserID :" + userId);
   try {
-    const uploaded = await users.findOneAndUpdate(
-      { _id: userId },
-      { profileUrl: fileName },
-      { new: true }
-    );
-    console.log("upload", fileName);
-    res.status(200).json(fileName);
+    const cloudUrl = await uploadOnCloudinary(localFilePath);
+    console.log("cloudurl :", cloudUrl);
+    try {
+      const uploaded = await users.findOneAndUpdate(
+        { _id: userId },
+        { profileUrl: cloudUrl.url },
+        { new: true }
+      );
+      console.log("upload", uploaded);
+      const profileUrl = uploaded.profileUrl;
+      res.status(200).json(profileUrl);
+    } catch (error) {
+      console.log("Error from /api/upload : ", error.message);
+    }
   } catch (error) {
-    console.log("Error from /api/upload : ", error.message);
+    console.log("Error from uploadOnCloudinary", error.message);
   }
 };
 
@@ -44,9 +54,10 @@ const getProfileImage = async (req, res) => {
   const userId = req.params.userId;
   try {
     const image = await users.findOne({ _id: userId });
-    res.status(200).json(image);
+    const { password, token, ...restDetails } = image;
+    res.status(200).json(restDetails);
   } catch (error) {
-    console.log("Error from /api/upload : ", error.message);
+    console.log("Error from /getprofile/:userId: ", error.message);
   }
 };
 

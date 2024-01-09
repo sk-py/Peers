@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const bodyParser = require("body-parser");
+
 require("./Connection");
 require("dotenv").config();
 const PORT = process.env.PORT;
@@ -13,8 +13,6 @@ require("./Utils/SocketConfig");
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 //* Route imports
 const authRoutes = require("./Routes/Auth");

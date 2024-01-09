@@ -21,6 +21,7 @@ const registerUser = async (req, res, next) => {
           const user = new users({
             fullName,
             email,
+            profileUrl: "",
           });
           bcrypt.hash(password, 10, (error, result) => {
             user.set("password", result);
@@ -80,7 +81,6 @@ const loginUser = async (req, res, next) => {
             },
             token: { token: userExists.token },
           });
-          // .render("/");
         }
       }
     }

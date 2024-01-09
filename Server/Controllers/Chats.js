@@ -71,6 +71,8 @@ const fetchConversationsList = async (req, res) => {
             fullName: user.fullName,
             email: user.email,
             id: user._id,
+            profileUrl: user?.profileUrl,
+            status: user?.status,
           },
           conversationId: conversation._id,
         };

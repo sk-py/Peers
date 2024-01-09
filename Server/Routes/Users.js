@@ -5,6 +5,7 @@ const {
   getProfileImage,
 } = require("../Controllers/Users");
 const { upload } = require("../Middlewares/Multer");
+
 const router = express.Router();
 
 router.get("/users/:name", searchUsers);
