@@ -36,7 +36,7 @@ const uploadProfile = async (req, res) => {
     try {
       const uploaded = await users.findOneAndUpdate(
         { _id: userId },
-        { profileUrl: cloudUrl.url },
+        { profileUrl: cloudUrl },
         { new: true }
       );
       console.log("upload", uploaded);
